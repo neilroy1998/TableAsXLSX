@@ -1,0 +1,18 @@
+.head-decor {
+    background-color: lightgoldenrodyellow;
+    color: goldenrod;
+}
+
+.cell-decor {
+    background-color: palegreen;
+    color: seagreen;
+}
+
+th, td {
+    border: 1px solid lightgray;
+}
+
+th:hover, td:hover {
+    background-color: white;
+    cursor: pointer;
+}
