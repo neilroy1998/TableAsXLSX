@@ -7,7 +7,8 @@ $(function () {
             "styleExclude": [],
             "funcAtStart": null,
             "funcBeforeReturn": null,
-            "consoleLogIteration": false
+            "consoleLogIteration": false,
+            "removeColors": false
         });
 
         $("#result").val(

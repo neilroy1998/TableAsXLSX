@@ -1,9 +1,15 @@
 let tableIterate = function (tableID, propDetails) {
 
-    propDetails.funcAtStart;
+    try {
+        propDetails.funcAtStart;
+    } catch (e) {
+        console.log("ERROR: Error at 'funcAtStart'");
+        console.log(e);
+    }
 
     let tableData = {};
-    let defaultClasses = ["background-color", "color"];
+    let defaultClasses = [];
+    if(!propDetails.removeColors) defaultClasses = ["background-color", "color"];
 
     defaultClasses = defaultClasses.concat(propDetails.styleInclude);
     defaultClasses = defaultClasses.filter(function (value) {
@@ -12,9 +18,12 @@ let tableIterate = function (tableID, propDetails) {
 
     let head = [];
     let body = [];
+    let headIndex = 0;
+    let bodyIndex = 0;
 
     $(tableID + " > thead > tr > th").each(function () {
         t = {};
+        t["index"] = headIndex++;
         t["val"] = $(this).text().trim().replace(/\s+/g, '');
         t["col"]= $(this).parent().children().index($(this));
         for (var i = 0; i < defaultClasses.length; i++) {
@@ -25,6 +34,7 @@ let tableIterate = function (tableID, propDetails) {
 
     $(tableID + " > tbody > tr > td").each(function () {
         t = {};
+        t["index"] = bodyIndex++;
         t["val"] = $(this).text().trim().replace(/\s+/g, '');
         t["col"]= $(this).parent().children().index($(this));
         t["row"] = $(this).parent().parent().children().index($(this).parent());
@@ -40,7 +50,15 @@ let tableIterate = function (tableID, propDetails) {
 
     if (propDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
 
-    propDetails.funcBeforeReturn;
+    headIndex = 0;
+    bodyIndex = 0;
+
+    try {
+        propDetails.funcBeforeReturn;
+    } catch (e) {
+        console.log("ERROR: Error at 'funcBeforeReturn'");
+        console.log(e);
+    }
 
     return tableData;
 }
