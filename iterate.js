@@ -1,6 +1,7 @@
 $(function () {
     $("#btn1").click(function () {
         let tp = tableIterate("#table1", {
+            "useHexColor": false, 
             "colExclude": [],
             "styleInclude": [],
             "rowExclude": [],
