@@ -34,10 +34,7 @@ let tableIterate = function (tableID, propDetails) {
     let bodyIndex = 0;
 
     /* todo
-    *   Add normal row / col index
-    *   Add excel cell index
-    *   Additional outputs
-    *   formatting
+    *   borders
     *   tfoot
     *   just tr(s)
     *   header

@@ -12,7 +12,6 @@ let excelTest = function (iteratedValue) {
 
     let headArray = iteratedValue.head;
     let bodyArray = iteratedValue.body;
-    let completeArray = headArray.concat(bodyArray);
 
     let columnConfig = [];
     let colKeyIndex = 65;
@@ -41,6 +40,28 @@ let excelTest = function (iteratedValue) {
         }
         ws.getCell(v.excelIndex).font = {
             color: {argb: v.color}
+        };
+    });
+
+    headArray.forEach(function (h) {
+        if (h["background-color"]!=="ffffffff") {
+            ws.getCell(h.excelIndex).fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {argb: h["background-color"]}
+            };
+        }
+        ws.getCell(h.excelIndex).font = {
+            color: {argb: h.color}
+        };
+    });
+
+    headArray.concat(bodyArray).forEach(function (i) {
+        ws.getCell(i.excelIndex).border = {
+            top: {style:'thin', color: {argb:'FFD4D4D4'}},
+            left: {style:'thin', color: {argb:'FFD4D4D4'}},
+            bottom: {style:'thin', color: {argb:'FFD4D4D4'}},
+            right: {style:'thin', color: {argb:'FFD4D4D4'}}
         };
     });
 
