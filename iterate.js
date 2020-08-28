@@ -4,11 +4,11 @@ $(function () {
             "useHexColor": false, 
             "colExclude": [],
             "styleInclude": [],
-            "rowExclude": [],
+            "rowExclude": ['1'],
             "styleExclude": [],
             "funcAtStart": null,
             "funcBeforeReturn": null,
-            "consoleLogIteration": false,
+            "consoleLogIteration": true,
             "removeColors": false
         });
 
@@ -18,5 +18,7 @@ $(function () {
             "\n\nBody\n" +
             JSON.stringify(tp.body).replace(/},{/g, ",\n")
         );
+
+        excelTest(tp);
     });
 });
