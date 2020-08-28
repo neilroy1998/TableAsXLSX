@@ -40,15 +40,28 @@ let tableIterate = function (tableID, propDetails) {
 
     /* todo
     *   Add normal row / col index
-    *   Add excel cell index*/
+    *   Add excel cell index
+    *   Additional outputs
+    *   formatting
+    *   tfoot
+    *   just tr(s)
+    *   header
+    *   sheets
+    *   comments
+    *   about*/
+
+    let totalBodyRows = $("#table1 > tbody > tr").length - propDetails.rowExclude.length;
+    let totalBodyCols = $("#table1 > thead > tr > th").length - propDetails.colExclude.length;
 
     try {
         $(tableID + " > thead > tr > th").each(function () {
             if (!propDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim())) {
                 t = {};
-                t["index"] = headIndex++;
+                t["index"] = headIndex++ - 1;
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
                 t["col"] = $(this).parent().children().index($(this));
+                t["colIndex"] = ++t.index;
+                t["excelIndex"] = String.fromCharCode(65 + t.colIndex) + "1";
                 for (var i = 0; i < defaultClasses.length; i++) {
                     if (propDetails.useHexColor) t[defaultClasses[i]] = rgb2hex($(this).css(defaultClasses[i]));
                     else t[defaultClasses[i]] = $(this).css(defaultClasses[i]);
@@ -70,6 +83,9 @@ let tableIterate = function (tableID, propDetails) {
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
                 t["col"] = $(this).parent().children().index($(this));
                 t["row"] = $(this).parent().parent().children().index($(this).parent());
+                t["colIndex"] = String.fromCharCode(65 + t.index%totalBodyCols);
+                t["rowIndex"] = 2 + Math.floor(t.index/totalBodyCols);
+                t["excelIndex"] = t.colIndex + t.rowIndex;
                 for (var i = 0; i < defaultClasses.length; i++) {
                     if (propDetails.useHexColor) t[defaultClasses[i]] = rgb2hex($(this).css(defaultClasses[i]));
                     else t[defaultClasses[i]] = $(this).css(defaultClasses[i]);
@@ -84,9 +100,8 @@ let tableIterate = function (tableID, propDetails) {
 
     tableData["head"] = head;
     tableData["body"] = body;
-    tableData["totalRows"] =
-        tableData["totalCols"] = 1 + body[body.length - 1].col;
-    console.log(body.length);
+    tableData["totalBodyRows"] = totalBodyRows;
+    tableData["totalBodyCols"] = totalBodyCols;
 
     if (propDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
 
