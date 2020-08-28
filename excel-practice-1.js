@@ -17,7 +17,8 @@ let excelTest = function (iteratedValue) {
     let colKeyIndex = 65;
 
     /* todo ask for col widths
-        default: 8.11 or 9 */
+        default: 8.11 or 9
+        wrap*/
     headArray.forEach(function (h) {
         temp = {
             header: h.val,
@@ -30,7 +31,11 @@ let excelTest = function (iteratedValue) {
     ws.columns = columnConfig;
 
     bodyArray.forEach(function (v) {
-        ws.getCell(v.excelIndex).value = v.val;
+
+        if (v.val === "") v.val = "";
+        else if(!isNaN(v.val.replace(/,/g, ""))) ws.getCell(v.excelIndex).value = parseInt(v.val);
+        else ws.getCell(v.excelIndex).value = v.val;
+
         if (v["background-color"]!=="ffffffff") {
             ws.getCell(v.excelIndex).fill = {
                 type: 'pattern',
@@ -41,6 +46,7 @@ let excelTest = function (iteratedValue) {
         ws.getCell(v.excelIndex).font = {
             color: {argb: v.color}
         };
+        ws.getCell(v.excelIndex).alignment = { wrapText: true };
     });
 
     headArray.forEach(function (h) {
@@ -54,6 +60,7 @@ let excelTest = function (iteratedValue) {
         ws.getCell(h.excelIndex).font = {
             color: {argb: h.color}
         };
+        ws.getCell(h.excelIndex).alignment = { wrapText: true };
     });
 
     headArray.concat(bodyArray).forEach(function (i) {

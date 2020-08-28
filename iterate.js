@@ -1,6 +1,6 @@
 $(function () {
     $("#btn1").click(function () {
-        let tp = tableIterate("#table1", {
+        let tp = tableIterate("#exportDemandTable", {
             "colExclude": ['1'],
             "styleInclude": [],
             "rowExclude": ['1'],

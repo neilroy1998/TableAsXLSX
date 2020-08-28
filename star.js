@@ -42,8 +42,8 @@ let tableIterate = function (tableID, propDetails) {
     *   comments
     *   about*/
 
-    let totalBodyRows = $("#table1 > tbody > tr").length - propDetails.rowExclude.length;
-    let totalBodyCols = $("#table1 > thead > tr > th").length - propDetails.colExclude.length;
+    let totalBodyRows = $(tableID + " > tbody > tr").length - propDetails.rowExclude.length;
+    let totalBodyCols = $(tableID + " > thead > tr > th").length - propDetails.colExclude.length;
 
     try {
         $(tableID + " > thead > tr > th").each(function () {
