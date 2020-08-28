@@ -9,7 +9,7 @@ function rgb2hex(input) {
             return ("0" + parseInt(x).toString(16)).slice(-2);
         }
 
-        return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+        return "ff" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
     } catch (e) {
         return input;
     }
@@ -27,11 +27,6 @@ let tableIterate = function (tableID, propDetails) {
     let tableData = {};
     let defaultClasses = [];
     if (!propDetails.removeColors) defaultClasses = ["background-color", "color"];
-
-    defaultClasses = defaultClasses.concat(propDetails.styleInclude);
-    defaultClasses = defaultClasses.filter(function (value) {
-        return (!propDetails.styleExclude.includes(value));
-    });
 
     let head = [];
     let body = [];
@@ -62,9 +57,10 @@ let tableIterate = function (tableID, propDetails) {
                 t["col"] = $(this).parent().children().index($(this));
                 t["colIndex"] = ++t.index;
                 t["excelIndex"] = String.fromCharCode(65 + t.colIndex) + "1";
-                for (var i = 0; i < defaultClasses.length; i++) {
-                    if (propDetails.useHexColor) t[defaultClasses[i]] = rgb2hex($(this).css(defaultClasses[i]));
-                    else t[defaultClasses[i]] = $(this).css(defaultClasses[i]);
+                t["background-color"] = rgb2hex($(this).css('background-color'));
+                t["color"] = rgb2hex($(this).css('color'));
+                if (t["background-color"] === t["color"] && t["color"] === "ff000000") {
+                    t["background-color"] = 'ffffffff';
                 }
                 head.push(t);
             }
@@ -86,9 +82,10 @@ let tableIterate = function (tableID, propDetails) {
                 t["colIndex"] = String.fromCharCode(65 + t.index%totalBodyCols);
                 t["rowIndex"] = 2 + Math.floor(t.index/totalBodyCols);
                 t["excelIndex"] = t.colIndex + t.rowIndex;
-                for (var i = 0; i < defaultClasses.length; i++) {
-                    if (propDetails.useHexColor) t[defaultClasses[i]] = rgb2hex($(this).css(defaultClasses[i]));
-                    else t[defaultClasses[i]] = $(this).css(defaultClasses[i]);
+                t["background-color"] = rgb2hex($(this).css('background-color'));
+                t["color"] = rgb2hex($(this).css('color'));
+                if (t["background-color"] === t["color"] && t["color"] === "ff000000") {
+                    t["background-color"] = 'ffffffff';
                 }
                 body.push(t);
             }
