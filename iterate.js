@@ -1,22 +1,14 @@
 $(function () {
     $("#btn1").click(function () {
-        let tp = tableIterate("#exportDemandTable", {
+        let tp = excelize("#table1", {
             "colExclude": ['1'],
-            "styleInclude": [],
             "rowExclude": ['1'],
             "funcAtStart": null,
-            "funcBeforeReturn": null,
+            "funcAtEnd": null,
             "consoleLogIteration": false,
-            "removeColors": false
+            "defaultWidth": 25,
+            "fileName": "TestBook"
         });
 
-        $("#result").val(
-            "Head\n" +
-            JSON.stringify(tp.head).replace(/},{/g, ",\n") +
-            "\n\nBody\n" +
-            JSON.stringify(tp.body).replace(/},{/g, ",\n")
-        );
-
-        excelTest(tp);
     });
 });
