@@ -15,10 +15,75 @@ function rgb2argb(input) {
     }
 }
 
-let excelize = function (tableID, propDetails) {
+function timeConverter(UNIX_timestamp) {
+    var a = new Date(UNIX_timestamp);
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var year = a.getFullYear();
+    var monthNumber = a.getMonth();
+    var month = months[monthNumber];
+    var date = a.getDate();
+    var properDate = "";
+    if (date < 10) properDate = month + " 0" + date + ", " + year;
+    else properDate = month + " " + date + ", " + year;
+    return properDate;
+}
+
+let excelize = function (initDetails, tableData) {
+    try {
+        initDetails.funcAtStart;
+    } catch (e) {
+        console.error("ERROR: Error at 'initFuncAtStart'");
+        console.error(e);
+    }
+
+    initDetails = {
+        "fileName": initDetails.fileName || "Excel Export on " + timeConverter(Date.now()),
+        "initFuncAtStart": initDetails.initFuncAtStart || null,
+        "initFuncAtEnd": initDetails.initFuncAtEnd || null
+    }
+
+    tableData = tableData || null;
+
+    if (tableData) {
+
+        let wb = new ExcelJS.Workbook();
+
+        for (var i = 0; i < tableData.length; i++) {
+
+            tableData[i] = {
+                "tableID": tableData[i].tableID,
+                "colExclude": tableData[i].colExclude || [],
+                "rowExclude": tableData[i].rowExclude || [],
+                "funcAtStart": tableData[i].funcAtStart || null,
+                "funcAtEnd": tableData[i].funcAtEnd || null,
+                "consoleLogIteration": tableData[i].consoleLogIteration || false,
+                "defaultWidth": tableData[i].defaultWidth || 9,
+                "sheetName": tableData[i].sheetName || null,
+                "sheetTabColor": tableData[i].sheetTabColor || null
+            }
+
+            tableIterator(wb, tableData[i], i);
+        }
+
+        // Using window.saveAs rather than fileSaver.saveAs
+        wb.xlsx.writeBuffer()
+            .then(buffer => window.saveAs(new Blob([buffer]), `${initDetails.fileName}.xlsx`))
+            .catch(err => console.error('Error writing excel export', err));
+
+    }
 
     try {
-        propDetails.funcAtStart;
+        initDetails.initFuncAtEnd;
+    } catch (e) {
+        console.error("ERROR: Error at 'initFuncAtEnd'");
+        console.error(e);
+    }
+}
+
+let tableIterator = function (wb, tableDetails, tableIndex) {
+
+    try {
+        tableDetails.funcAtStart;
     } catch (e) {
         console.error("ERROR: Error at 'funcAtStart'");
         console.error(e);
@@ -34,18 +99,15 @@ let excelize = function (tableID, propDetails) {
     let footIndex = 0;
 
     /* todo
-    *   just tr(s)
-    *   header
-    *   sheets
     *   comments
     *   about*/
 
-    let totalBodyRows = $(tableID + " > tbody > tr").length - propDetails.rowExclude.length;
-    let totalBodyCols = $(tableID + " > thead > tr > th").length - propDetails.colExclude.length;
+    let totalBodyRows = $(tableDetails.tableID + " > tbody > tr").length - tableDetails.rowExclude.length;
+    let totalBodyCols = $(tableDetails.tableID + " > thead > tr > th").length - tableDetails.colExclude.length;
 
     try {
-        $(tableID + " > thead > tr > th").each(function () {
-            if (!propDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim())) {
+        $(tableDetails.tableID + " > thead > tr > th").each(function () {
+            if (!tableDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim())) {
                 t = {};
                 t["index"] = headIndex++ - 1;
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
@@ -68,11 +130,13 @@ let excelize = function (tableID, propDetails) {
                 if ($(this).css('font-style').includes("italic")) t.style.italics = true;
                 try {
                     t.style.size = $(this).css('font-size').split("px")[0];
-                } catch(e) {t.style.size = 11;}
+                } catch (e) {
+                    t.style.size = 11;
+                }
                 if ($(this).css("text-decoration").split(" ").includes("underline")) t.style.underline = true;
                 try {
-                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g,"");
-                } catch(e) {
+                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g, "");
+                } catch (e) {
                     t.style.family = 'sans-serif';
                 }
                 head.push(t);
@@ -84,9 +148,9 @@ let excelize = function (tableID, propDetails) {
     }
 
     try {
-        $(tableID + " > tbody > tr > td").each(function () {
-            if (!propDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim()) &&
-                !propDetails.rowExclude.includes($(this).parent().parent().children().index($(this).parent()).toString().trim())) {
+        $(tableDetails.tableID + " > tbody > tr > td").each(function () {
+            if (!tableDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim()) &&
+                !tableDetails.rowExclude.includes($(this).parent().parent().children().index($(this).parent()).toString().trim())) {
                 t = {};
                 t["index"] = bodyIndex++;
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
@@ -111,11 +175,13 @@ let excelize = function (tableID, propDetails) {
                 if ($(this).css('font-style').includes("italic")) t.style.italics = true;
                 try {
                     t.style.size = $(this).css('font-size').split("px")[0];
-                } catch(e) {t.style.size = 11;}
+                } catch (e) {
+                    t.style.size = 11;
+                }
                 if ($(this).css("text-decoration").split(" ").includes("underline")) t.style.underline = true;
                 try {
-                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g,"");
-                } catch(e) {
+                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g, "");
+                } catch (e) {
                     t.style.family = 'sans-serif';
                 }
                 body.push(t);
@@ -127,8 +193,8 @@ let excelize = function (tableID, propDetails) {
     }
 
     try {
-        $(tableID + " > tfoot > tr > td").each(function () {
-            if (!propDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim())) {
+        $(tableDetails.tableID + " > tfoot > tr > td").each(function () {
+            if (!tableDetails.colExclude.includes($(this).parent().children().index($(this)).toString().trim())) {
                 t = {};
                 t["index"] = footIndex++ - 1;
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
@@ -151,11 +217,13 @@ let excelize = function (tableID, propDetails) {
                 if ($(this).css('font-style').includes("italic")) t.style.italics = true;
                 try {
                     t.style.size = $(this).css('font-size').split("px")[0];
-                } catch(e) {t.style.size = 11;}
+                } catch (e) {
+                    t.style.size = 11;
+                }
                 if ($(this).css("text-decoration").split(" ").includes("underline")) t.style.underline = true;
                 try {
-                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g,"");
-                } catch(e) {
+                    t.style.family = $(this).css("font-family").split(',')[0].replace(/['"]/g, "");
+                } catch (e) {
                     t.style.family = 'sans-serif';
                 }
                 foot.push(t);
@@ -172,19 +240,31 @@ let excelize = function (tableID, propDetails) {
     tableData["totalBodyRows"] = totalBodyRows;
     tableData["totalBodyCols"] = totalBodyCols;
 
-    if (propDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
+    if (tableDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
 
     headIndex = 0;
     bodyIndex = 0;
     footIndex = 0;
 
-    excelCreateAndExport(tableData, propDetails);
+    excelCreateAndExport(wb, tableData, tableDetails, tableIndex);
+
 }
 
-let excelCreateAndExport = function (iteratedValue, propDetails) {
+let excelCreateAndExport = function (wb, iteratedValue, tableDetails, tableIndex) {
 
-    let wb = new ExcelJS.Workbook();
-    let ws = wb.addWorksheet("Sheet1");
+    let sheetName;
+    if (tableDetails.sheetName) sheetName = tableDetails.sheetName;
+    else sheetName = "Sheet" + (tableIndex + 1).toString();
+
+    let sheetTabColor;
+    if (tableDetails.sheetTabColor) sheetTabColor = "FF" + tableDetails.sheetTabColor.split("#")[1];
+    else sheetTabColor = "FFFFFFFF";
+
+    let ws = wb.addWorksheet(sheetName,
+        {
+            properties: {tabColor: {argb: sheetTabColor}},
+            views: [{state: 'frozen', ySplit: 1}]
+        });
 
     let headArray = iteratedValue.head;
     let bodyArray = iteratedValue.body;
@@ -197,33 +277,29 @@ let excelCreateAndExport = function (iteratedValue, propDetails) {
         default: 8.11 or 9
         wrap*/
 
-    if (propDetails.defaultWidth <= 0) propDetails.defaultWidth = 9;
+    if (tableDetails.defaultWidth <= 0) tableDetails.defaultWidth = 9;
 
     headArray.forEach(function (h) {
         temp = {
             header: h.val,
             key: String.fromCharCode(colKeyIndex++),
-            width: propDetails.defaultWidth
+            width: tableDetails.defaultWidth
         };
         columnConfig.push(temp);
     });
 
     ws.columns = columnConfig;
 
-    bodyArray.forEach(function (v) {
+    let addBackgroundColor = function (v) {
+        return {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: {argb: v["background-color"]}
+        };
+    }
 
-        if (v.val === "") v.val = "";
-        else if (!isNaN(v.val.replace(/,/g, ""))) ws.getCell(v.excelIndex).value = parseInt(v.val);
-        else ws.getCell(v.excelIndex).value = v.val;
-
-        if (v["background-color"] !== "ffffffff") {
-            ws.getCell(v.excelIndex).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: {argb: v["background-color"]}
-            };
-        }
-        ws.getCell(v.excelIndex).font = {
+    let addFontStyle = function (v) {
+        return {
             color: {argb: v.color},
             name: v.style.family,
             family: 2,
@@ -231,50 +307,34 @@ let excelCreateAndExport = function (iteratedValue, propDetails) {
             underline: v.style.underline,
             italic: v.style.italics
         };
+    }
+
+    let addStyles = function (ws, v) {
+        if (v["background-color"] !== "ffffffff") ws.getCell(v.excelIndex).fill = addBackgroundColor(v);
+        ws.getCell(v.excelIndex).font = addFontStyle(v);
         ws.getCell(v.excelIndex).alignment = {wrapText: true};
+        return ws;
+    }
+
+    let addValues = function (ws, v) {
+        if (v.val === "") v.val = "";
+        else if (!isNaN(v.val.replace(/,/g, ""))) ws.getCell(v.excelIndex).value = parseInt(v.val);
+        else ws.getCell(v.excelIndex).value = v.val;
+        return ws;
+    }
+
+    bodyArray.forEach(function (v) {
+        ws = addValues(ws, v);
+        ws = addStyles(ws, v);
     });
 
     headArray.forEach(function (h) {
-        if (h["background-color"] !== "ffffffff") {
-            ws.getCell(h.excelIndex).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: {argb: h["background-color"]}
-            };
-        }
-        ws.getCell(h.excelIndex).font = {
-            color: {argb: h.color},
-            name: h.style.family,
-            family: 2,
-            bold: h.style.bold,
-            underline: h.style.underline,
-            italic: h.style.italics
-        };
-        ws.getCell(h.excelIndex).alignment = {wrapText: true};
+        ws = addStyles(ws, h);
     });
 
     footArray.forEach(function (f) {
-
-        if (f.val === "") f.val = "";
-        else if (!isNaN(f.val.replace(/,/g, ""))) ws.getCell(f.excelIndex).value = parseInt(f.val);
-        else ws.getCell(f.excelIndex).value = f.val;
-
-        if (f["background-color"] !== "ffffffff") {
-            ws.getCell(f.excelIndex).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: {argb: f["background-color"]}
-            };
-        }
-        ws.getCell(f.excelIndex).font = {
-            color: {argb: f.color},
-            name: f.style.family,
-            family: 2,
-            bold: f.style.bold,
-            underline: f.style.underline,
-            italic: f.style.italics
-        };
-        ws.getCell(f.excelIndex).alignment = {wrapText: true};
+        ws = addValues(ws, f);
+        ws = addStyles(ws, f);
     });
 
 
@@ -287,14 +347,8 @@ let excelCreateAndExport = function (iteratedValue, propDetails) {
         };
     });
 
-// Using window.saveAs rather than fileSaver.saveAs
-    wb.xlsx.writeBuffer()
-        // todo ask for name
-        .then(buffer => window.saveAs(new Blob([buffer]), `${propDetails.fileName}.xlsx`))
-        .catch(err => console.error('Error writing excel export', err));
-
     try {
-        propDetails.funcAtEnd;
+        tableDetails.funcAtEnd;
     } catch (e) {
         console.error("ERROR: Error at 'funcAtEnd'");
         console.error(e);
