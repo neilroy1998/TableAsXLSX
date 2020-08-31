@@ -28,6 +28,14 @@ function timeConverter(UNIX_timestamp) {
     return properDate;
 }
 
+function letterCounter(num) {
+    "use strict";
+    var mod = num % 26,
+        pow = num / 26 | 0,
+        out = mod ? String.fromCharCode(64 + mod) : (--pow, 'Z');
+    return pow ? letterCounter(pow) + out : out;
+}
+
 let excelize = function (initDetails, tableData) {
     try {
         initDetails.funcAtStart;
@@ -45,8 +53,6 @@ let excelize = function (initDetails, tableData) {
     tableData = tableData || null;
 
     if (tableData) {
-
-        // todo z+1 = aa
 
         let wb = new ExcelJS.Workbook();
 
@@ -67,7 +73,7 @@ let excelize = function (initDetails, tableData) {
 
             tableIterator(wb, tableData[i], i);
         }
-
+// return;
         // Using window.saveAs rather than fileSaver.saveAs
         wb.xlsx.writeBuffer()
             .then(buffer => window.saveAs(new Blob([buffer]), `${initDetails.fileName}.xlsx`))
@@ -106,7 +112,7 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
     *   about*/
 
     let totalBodyRows = $(tableDetails.tableID + " > tbody > tr").length - tableDetails.rowExclude.length;
-    let totalBodyCols = $(tableDetails.tableID + " > thead > tr > th").length - tableDetails.colExclude.length;
+    let totalBodyCols = $(tableDetails.tableID + " > tbody > tr:eq(0) > td").length - tableDetails.colExclude.length;
 
     try {
         $(tableDetails.tableID + " > thead > tr > th").each(function () {
@@ -120,7 +126,7 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
                 tableDetails.customWidth.forEach(function (cw) {
                     if (t.index === cw.col) t["colWidth"] = cw.width;
                 })
-                t["excelIndex"] = String.fromCharCode(65 + t.colIndex) + "1";
+                t["excelIndex"] = letterCounter(1 + t.colIndex) + "1";
                 t["background-color"] = rgb2argb($(this).css('background-color'));
                 t["color"] = rgb2argb($(this).css('color'));
                 if (t["background-color"] === t["color"] && t["color"] === "ff000000") {
@@ -163,7 +169,7 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
                 t["col"] = $(this).parent().children().index($(this));
                 t["row"] = $(this).parent().parent().children().index($(this).parent());
-                t["colIndex"] = String.fromCharCode(65 + t.index % totalBodyCols);
+                t["colIndex"] = letterCounter(1 + (t.index % totalBodyCols));
                 t["rowIndex"] = 2 + Math.floor(t.index / totalBodyCols);
                 t["excelIndex"] = t.colIndex + t.rowIndex;
                 t["background-color"] = rgb2argb($(this).css('background-color'));
@@ -207,7 +213,7 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
                 t["col"] = $(this).parent().children().index($(this));
                 t["colIndex"] = ++t.index;
-                t["excelIndex"] = String.fromCharCode(65 + t.colIndex) + (totalBodyRows + 2);
+                t["excelIndex"] = letterCounter(1 + t.colIndex) + (totalBodyRows + 2);
                 t["background-color"] = rgb2argb($(this).css('background-color'));
                 t["color"] = rgb2argb($(this).css('color'));
                 if (t["background-color"] === t["color"] && t["color"] === "ff000000") {
@@ -251,6 +257,8 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
     bodyIndex = 0;
     footIndex = 0;
 
+    if (tableDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
+
     excelCreateAndExport(wb, tableData, tableDetails, tableIndex);
 
 }
@@ -276,7 +284,7 @@ let excelCreateAndExport = function (wb, iteratedValue, tableDetails, tableIndex
     let footArray = iteratedValue.foot;
 
     let columnConfig = [];
-    let colKeyIndex = 65;
+    let colKeyIndex = 1;
 
     /* todo ask for col widths
         default: 8.11 or 9
@@ -287,7 +295,7 @@ let excelCreateAndExport = function (wb, iteratedValue, tableDetails, tableIndex
     headArray.forEach(function (h) {
         temp = {
             header: h.val,
-            key: String.fromCharCode(colKeyIndex++),
+            key: letterCounter(colKeyIndex++),
             width: h.colWidth || 9
         };
         columnConfig.push(temp);
