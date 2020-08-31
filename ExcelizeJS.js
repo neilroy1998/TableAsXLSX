@@ -46,6 +46,8 @@ let excelize = function (initDetails, tableData) {
 
     if (tableData) {
 
+        // todo z+1 = aa
+
         let wb = new ExcelJS.Workbook();
 
         for (var i = 0; i < tableData.length; i++) {
@@ -58,8 +60,9 @@ let excelize = function (initDetails, tableData) {
                 "funcAtEnd": tableData[i].funcAtEnd || null,
                 "consoleLogIteration": tableData[i].consoleLogIteration || false,
                 "defaultWidth": tableData[i].defaultWidth || 9,
-                "sheetName": tableData[i].sheetName || null,
-                "sheetTabColor": tableData[i].sheetTabColor || null
+                "sheetDetails": tableData[i].sheetDetails || {"sheetName": null, "sheetTabColor": null},
+                "sheetTabColor": tableData[i].sheetTabColor || null,
+                "customWidth": tableData[i].customWidth || [{col: null, width: null}]
             }
 
             tableIterator(wb, tableData[i], i);
@@ -113,6 +116,10 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
                 t["val"] = $(this).text().trim().replace(/\s+/g, '');
                 t["col"] = $(this).parent().children().index($(this));
                 t["colIndex"] = ++t.index;
+                t["colWidth"] = tableDetails.defaultWidth;
+                tableDetails.customWidth.forEach(function (cw) {
+                    if (t.index === cw.col) t["colWidth"] = cw.width;
+                })
                 t["excelIndex"] = String.fromCharCode(65 + t.colIndex) + "1";
                 t["background-color"] = rgb2argb($(this).css('background-color'));
                 t["color"] = rgb2argb($(this).css('color'));
@@ -240,8 +247,6 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
     tableData["totalBodyRows"] = totalBodyRows;
     tableData["totalBodyCols"] = totalBodyCols;
 
-    if (tableDetails.consoleLogIteration) console.log(JSON.stringify(tableData));
-
     headIndex = 0;
     bodyIndex = 0;
     footIndex = 0;
@@ -253,11 +258,11 @@ let tableIterator = function (wb, tableDetails, tableIndex) {
 let excelCreateAndExport = function (wb, iteratedValue, tableDetails, tableIndex) {
 
     let sheetName;
-    if (tableDetails.sheetName) sheetName = tableDetails.sheetName;
+    if (tableDetails.sheetDetails.sheetName) sheetName = tableDetails.sheetDetails.sheetName;
     else sheetName = "Sheet" + (tableIndex + 1).toString();
 
     let sheetTabColor;
-    if (tableDetails.sheetTabColor) sheetTabColor = "FF" + tableDetails.sheetTabColor.split("#")[1];
+    if (tableDetails.sheetDetails.sheetTabColor) sheetTabColor = "FF" + tableDetails.sheetDetails.sheetTabColor.split("#")[1];
     else sheetTabColor = "FFFFFFFF";
 
     let ws = wb.addWorksheet(sheetName,
@@ -283,7 +288,7 @@ let excelCreateAndExport = function (wb, iteratedValue, tableDetails, tableIndex
         temp = {
             header: h.val,
             key: String.fromCharCode(colKeyIndex++),
-            width: tableDetails.defaultWidth
+            width: h.colWidth || 9
         };
         columnConfig.push(temp);
     });
