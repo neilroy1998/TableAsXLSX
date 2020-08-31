@@ -73,7 +73,7 @@ let excelize = function (initDetails, tableData) {
 
             tableIterator(wb, tableData[i], i);
         }
-// return;
+
         // Using window.saveAs rather than fileSaver.saveAs
         wb.xlsx.writeBuffer()
             .then(buffer => window.saveAs(new Blob([buffer]), `${initDetails.fileName}.xlsx`))
