@@ -7,7 +7,8 @@ $(function () {
             "funcAtEnd": null,
             "consoleLogIteration": false,
             "defaultWidth": 25,
-            "fileName": "TestBook"
+            "fileName": "TestBook",
+            "header": "TEST-header"
         });
 
     });

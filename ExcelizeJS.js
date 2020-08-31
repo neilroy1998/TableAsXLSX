@@ -162,7 +162,7 @@ let excelize = function (tableID, propDetails) {
             }
         });
     } catch (e) {
-        console.error("Error at thead reading");
+        console.error("Error at tfoot reading");
         console.error(e);
     }
 
