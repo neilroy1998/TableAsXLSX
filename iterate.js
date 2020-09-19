@@ -1,10 +1,20 @@
+let t0 = 0;
+let t1 = 0;
+let ton = function () {
+    t0 = performance.now();
+}
+let toff = function () {
+    t1 = performance.now();
+    console.log("TIME:: " + (t1 - t0) + "ms");
+}
+
 $(function () {
     $("#btn1").click(function () {
-        let tp = excelize(
+        let tp = web2xlsx(
             {
                 "fileName": "TestBook",
-                "initFuncAtStart": null,
-                "initFuncAtEnd": null
+                "initFuncAtStart": ton(),
+                "initFuncAtEnd": toff()
             },
             [{
                 "tableID": "#table1",
@@ -12,7 +22,7 @@ $(function () {
                 "rowExclude": ['1'],
                 "funcAtStart": null,
                 "funcAtEnd": null,
-                "consoleLogIteration": true,
+                "consoleLogIteration": false,
                 "defaultWidth": 25,
                 "sheetDetails": {
                     "sheetName": "Tab1",
@@ -30,6 +40,15 @@ $(function () {
                         col: 2,
                         width: 5
                     }]
+                },
+                {
+                    "tableID": ".exportDemandTable",
+                    "defaultWidth": 15,
+                    "customWidth": [{col: 25, width: 50}],
+                    "sheetDetails": {
+                        "sheetName": "MR",
+                        "sheetTabColor": "#00FF00"
+                    }
                 }]);
 
     });
